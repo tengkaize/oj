@@ -1,35 +1,41 @@
 #include <cstdio>
+#include <algorithm>
 
-namespace {
+using namespace std;
 
-constexpr int prime[] = {0, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+int p[51] = {0, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229};
 
-long long n, s = 0, pCmax = 0;
+long long n;
+int maxG = 0;
+long long maxPri = 0;
 
-void findAntiprime(int pI = 1, long long anti = 1, int bI = 31, long long pC = 1) {
-    if (pI == 11)
-        return;
-    long long k = 1;
-    for (int i = 1; i <= bI; ++i) {
-        k *= prime[pI];
-        if (anti * k > n)
-            return;
-        if (pC * (i + 1) == pCmax && anti * k < s)
-            s = anti * k;
-        if (pC * (i + 1) > pCmax) {
-            s = anti * k;
-            pCmax = pC * (i + 1);
-        }
-        findAntiprime(pI + 1, anti * k, i, pC * (i + 1));
-    }
+void gPri(long long acc, int i, int amax, int g) {
+	for (int ai = 1; ai <= amax; ++ai) {
+		if (acc * p[i] > n) {
+			if (g > maxG) { 
+				maxG = g;
+				maxPri = acc;
+			} else if (g == maxG) maxPri = min(maxPri, acc);
+			return;
+		}
+		gPri(acc *= p[i], i + 1, ai, g * (ai + 1));
+	}
 }
-
-}  // namespace
 
 int main() {
-    using namespace std;
-    scanf("%lld", &n);
-    findAntiprime();
-    printf("%lld\n", s);
-    return 0;
+#if !defined(ONLINE_JUDGE)
+	freopen("input.in", "r", stdin);
+	freopen("output.out", "w", stdout);
+#endif
+	
+	scanf("%lld", &n);
+	gPri(1, 1, 31, 1);
+	printf("%lld", maxPri);
+
+#if !defined(ONLINE_JUDGE)
+	fclose(stdin);
+	fclose(stdout);
+#endif
+	return 0;
 }
+
